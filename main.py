@@ -34,7 +34,7 @@ def rgb(r, g, b):
 
 settings = {
         "graphics possibilities": ["rough", "smooth", "simplified"],
-        "graphics": "simplified",
+        "graphics": "rough",
         "FOV": 60,
         "Render Distance": 1,
         "test mode": [False, {"map": {"show map": False, "show raycasting progress on map":False}, "raycasting speed": 1, "screen width":590, "gap": False}]
@@ -51,9 +51,8 @@ def mainloop():
 
     selected_data = block.data.copy()
 
-    # for i in range(len(selected_data)):
-    #     canvas.create_rectangle(selected_data[i][0][0][0]-player.x+player.center[0], selected_data[i][0][0][1]-player.y+player.center[1], selected_data[i][0][1][0]-player.x+player.center[0], selected_data[i][0][1][1]-player.y+player.center[1])
-    array = raycaster.raycast(player.x, player.y, direction, settings["FOV"] + settings["test mode"][1]["addon FOV"], [[i[0], i[2]] for i in selected_data], settings["Render Distance"]*100, settings["test mode"][1]["raycasting speed"], dirspeed=1)
+
+    array = raycaster.raycast(player.x, player.y, direction, settings["FOV"], [[i[0], i[2]] for i in selected_data], settings["Render Distance"]*100, settings["test mode"][1]["raycasting speed"], dirspeed=1)
 
     distance = settings["Render Distance"]*100
     calc = ceil(255/distance)
@@ -61,23 +60,24 @@ def mainloop():
     if settings["graphics"] == "rough":
         for i in range(len(array)):
             if array[i][0] is not None:
-                calc2 = [(i*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], (distance*2 - array[i][0])*2), (i*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], -(distance*2 - array[i][0])*2 + 300)]
+                calc2 = [(i*(settings["test mode"][1]["screen width"])/settings["FOV"], (distance*2 - array[i][0])*2), (i*(settings["test mode"][1]["screen width"])/settings["FOV"], -(distance*2 - array[i][0])*2 + 300)]
 
                 canvas.create_line(calc2, width=10, fill=rgb(255-min((array[i][0]*calc), 255), 255-min((array[i][0]*calc), 255), 255-min((array[i][0]*calc), 255)))
     elif settings["graphics"] == "smooth":
         for i in range(len(array) - 1):
             if array[i+1][0] is not None and array[i][0] is not None:
                     if array[i][1] == array[i+1][1]:
-                        calc2 = [(i*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], (distance*2 - array[i][0])*2), (i*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], -(distance*2 - array[i][0])*2 + 300)]
+                        calc2 = [(i*(settings["test mode"][1]["screen width"])/settings["FOV"], (distance*2 - array[i][0])*2), (i*(settings["test mode"][1]["screen width"])/settings["FOV"], -(distance*2 - array[i][0])*2 + 300)]
+                        colour = rgb(255-min((array[i+1][0]*calc), 255), 255-min((array[i+1][0]*calc), 255), 255-min((array[i+1][0]*calc), 255))
 
                         canvas.create_polygon([calc2[1], 
                                                calc2[0], 
-                                               ((i+1)*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], 
+                                               ((i+1)*(settings["test mode"][1]["screen width"])/settings["FOV"], 
                                                 (distance*2 - array[i+1][0])*2), 
-                                                ((i+1)*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], 
+                                                ((i+1)*(settings["test mode"][1]["screen width"])/settings["FOV"], 
                                                 -(distance*2 - array[i+1][0])*2 + 300)
                                                                                   ]
-                                                                                  , fill=rgb(255-min((array[i+1][0]*calc), 255), 255-min((array[i+1][0]*calc), 255), 255-min((array[i+1][0]*calc), 255)))
+                                                                                  , fill=colour, outline=colour)
 
     elif settings["graphics"] == "simplified":
         for i in range(len(array)):
@@ -95,31 +95,30 @@ def mainloop():
                 i = index
                 if i > len(array):
                     break
-                calc2 = [(dataindex*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], (distance*2 - array[dataindex][0])*2), (dataindex*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], -(distance*2 - array[dataindex][0])*2 + 300)]
-
+                calc2 = [(dataindex*(settings["test mode"][1]["screen width"])/settings["FOV"], (distance*2 - array[dataindex][0])*2), (dataindex*(settings["test mode"][1]["screen width"])/settings["FOV"], -(distance*2 - array[dataindex][0])*2 + 300)]
+                colour = rgb(
+                    255 - min((array[i][0]*calc), 255), 
+                    255 - min((array[i][0]*calc), 255), 
+                    255 - min((array[i][0]*calc), 255)
+                    )
+                
                 canvas.create_polygon([calc2[1], 
                                                calc2[0], 
-                                               ((index)*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], 
+                                               ((index)*(settings["test mode"][1]["screen width"])/settings["FOV"], 
                                                 (distance*2 - array[i][0])*2), 
-                                                ((index)*(settings["test mode"][1]["screen width"]+settings["test mode"][1]["addon width"])/settings["FOV"], 
+                                                ((index)*(settings["test mode"][1]["screen width"])/settings["FOV"], 
                                                 -(distance*2 - array[i][0])*2 + 300)
                                                                                   ]
-                                                                                  , fill=rgb(255-min((array[index][0]*calc), 255), 255-min((array[index][0]*calc), 255), 255-min((array[index][0]*calc), 255)))
+                                                                                  , fill=colour, outline=colour)
                 
 
 
 
     canvas.update()
 
-    # print([i[0] for i in selected_data])
-    # print(raycaster.x, raycaster.y)
-
-    # print(degrees(atan2(root.winfo_pointery()+player.center[1]-player.y, root.winfo_pointerx()+player.center[0]-player.x)))
-    # player.move(atan2(root.winfo_pointery()-player.y, root.winfo_pointerx()-player.x), 1)
     rvel = int('d' in keys) - int('a' in keys)
     mvel = int('w' in keys) - int('s' in keys)
-    # print(keys, ('d' in keys or 'a' in keys or 's' in keys or 'w' in keys))
-    # print(player.vel)
+ 
     direction += rvel*5
     player.vel += mvel
     player.vel = (min(max(-10, player.vel), 10) * 0.9)
@@ -145,6 +144,8 @@ def key_up(e):
 root.bind("<KeyPress>", key_down) 
 root.bind("<KeyRelease>", key_up)
 
+
 mainloop()
+
 
 root.mainloop()
